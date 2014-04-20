@@ -143,3 +143,33 @@ class Client(object):
         Delete an access_token.
         """
         return self.request('DELETE', '/access_tokens/' + access_token)
+
+    def list_datastreams(self, params=None):
+        """
+        List datastreams.
+        """
+        return self.request('GET', '/datastreams', params = params)
+
+    def create_datastream(self, data=None):
+        """
+        Create an datastream.
+        """
+        return self.request('POST', '/datastreams', data=data)
+
+    def read_datastream(self, id):
+        """
+        Read an datastream.
+        """
+        return self.request('GET', '/datastreams/' + id)
+
+    def update_datastream(self, id, data=None):
+        """
+        Update an datastream.
+        """
+        return self.request('PUT', '/datastreams/' + id, data=data)
+
+    def delete_datastream(self, id):
+        """
+        Delete an datastream.
+        """
+        return self.request('DELETE', '/datastreams/' + id)
