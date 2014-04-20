@@ -51,9 +51,11 @@ class Client(object):
         self.version = version
         self.secure = secure
         self.session = requests.Session()
-        self.headers = {'Content-Type': 'application/json',
-                        'User-Agent': 'dotide.py',
-                        'TimeZone': 'UTC'}
+        self.headers = {
+            'Content-Type': 'application/json',
+            'User-Agent': 'dotide.py',
+            'TimeZone': 'UTC'
+        }
 
     def build_base_url(self):
         """
@@ -111,7 +113,7 @@ class Client(object):
 
         data = r.json() if r.content else None
         if r.status_code >= 400:
-            raise requests.exceptions.HTTPError(data['message'] ,response=r)
+            raise requests.exceptions.HTTPError(data['message'], response=r)
         return data
 
     def list_access_tokens(self, params=None):
@@ -130,25 +132,32 @@ class Client(object):
         """
         Read an access_token.
         """
-        return self.request('GET', '/access_tokens/' + access_token)
+        return self.request('GET',
+                            '/access_tokens/{access_token}'.format(
+                                access_token=access_token))
 
     def update_access_token(self, access_token, data=None):
         """
         Update an access_token.
         """
-        return self.request('PUT', '/access_tokens/' + access_token, data=data)
+        return self.request('PUT',
+                            '/access_tokens/{access_token}'.format(
+                                access_token=access_token),
+                            data=data)
 
     def delete_access_token(self, access_token):
         """
         Delete an access_token.
         """
-        return self.request('DELETE', '/access_tokens/' + access_token)
+        return self.request('DELETE',
+                            '/access_tokens/{access_token}'.format(
+                                access_token=access_token))
 
     def list_datastreams(self, params=None):
         """
         List datastreams.
         """
-        return self.request('GET', '/datastreams', params = params)
+        return self.request('GET', '/datastreams', params=params)
 
     def create_datastream(self, data=None):
         """
@@ -160,16 +169,58 @@ class Client(object):
         """
         Read an datastream.
         """
-        return self.request('GET', '/datastreams/' + id)
+        return self.request('GET', '/datastreams/{id}'.format(id=id))
 
     def update_datastream(self, id, data=None):
         """
         Update an datastream.
         """
-        return self.request('PUT', '/datastreams/' + id, data=data)
+        return self.request('PUT',
+                            '/datastreams/{id}'.format(id=id),
+                            data=data)
 
     def delete_datastream(self, id):
         """
         Delete an datastream.
         """
-        return self.request('DELETE', '/datastreams/' + id)
+        return self.request('DELETE', '/datastreams/{id}'.format(id=id))
+
+    def list_datapoints(self, id, params=None):
+        """
+        List datapoints.
+        """
+        return self.request('GET',
+                            '/datastreams/{id}/datapoints'.format(id=id),
+                            params=params)
+
+    def create_datapoint(self, id, data=None):
+        """
+        Create datapoint(s).
+        """
+        return self.request('POST',
+                            '/datastreams/{id}/datapoints'.format(id=id),
+                            data=data)
+
+    def read_datapoint(self, id, t):
+        """
+        Read a datapoint by timestamp.
+        """
+        return self.request('GET',
+                            '/datastreams/{id}/datapoints/{t}'.format(id=id,
+                                                                      t=t))
+
+    def delete_datapoints(self, id, start, end):
+        """
+        Delete a range of datapoints.
+        """
+        return self.request('DELETE',
+                            '/datastreams/{id}/datapoints'.format(id=id),
+                            params={'start': start, 'end': end})
+
+    def delete_datapoint(self, id, t):
+        """
+        Delete datapoint by timestamp.
+        """
+        return self.request('DELETE',
+                            '/datastreams/{id}/datapoints/{t}'.format(id=id,
+                                                                      t=t))
