@@ -9,7 +9,7 @@ DB = ''
 
 client = dotide.Client(client_id=CLIENT_ID,
                        client_secret=CLIENT_SECRET,
-                       databaseb=DB)
+                       database=DB)
 
 # List datastreams
 datastreams = client.datastreams.filter(ids=['id0', 'id1'],
