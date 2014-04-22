@@ -28,3 +28,35 @@ class AccessToken(object):
 
     def delete(self):
         return self._manager.delete(self.access_token)
+
+
+class Datastream(object):
+
+    """
+    Datastream Model.
+    """
+
+    def __init__(self, manager=None, id=None, name=None, type=None, tags=None,
+                 properties=None, current_t=None, current_v=None,
+                 created_at=None, updated_at=None):
+        self._manager = manager
+        self.id = id
+        self.name = name
+        self.type = type
+        self.tags= tags
+        self.properties = properties
+        self.current_t = current_t
+        self.current_v = current_v
+        self.created_at = created_at
+        self.updated_at = updated_at
+
+    def save(self):
+        datastream = self._manager.update(self.id,
+                                          name=self.name,
+                                          tags=self.tags,
+                                          properties=self.properties)
+        self.updated_at = datastream.updated_at
+        return self
+
+    def delete(self):
+        return self._manager.delete(self.id)

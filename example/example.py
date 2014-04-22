@@ -13,14 +13,10 @@ client = dotide.Client(client_id=CLIENT_ID,
 
 # List datastreams
 datastreams = client.datastreams.filter(ids=['id0', 'id1'],
-                                        tags='tag0,tag1',
+                                        tags=['tag0', 'tag1'],
                                         limit=10,
                                         offset=10
                                         )
-
-# Read datastream
-datastream = client.datastreams.get('id0')
-print datastream.type
 
 # Create datastream
 datastream = client.datastreams.create(id='id0',
@@ -30,12 +26,26 @@ datastream = client.datastreams.create(id='id0',
                                        proerties={'prop0': 1}
                                        )
 
+# Read datastream
+datastream = client.datastreams.get('id0')
+print datastream.type
+
 # Update datstream
 datastream.tags.append('tag1')
 datastream.save()
 
+# Update datastream directly
+datastream = client.datastreams.update('id0',
+                                       name='name0',
+                                       tags=['tag0'],
+                                       proerties={'prop0': 1}
+                                       )
+
 # Delete datastream
 datastream.delete()
+
+# Delete datastream directly
+client.datastreams.delete('id0')
 
 # List datapoints
 datapoints = datastream.datapoints.filter(start=datetime(2014, 1, 1),
@@ -55,3 +65,40 @@ datapoint = datastream.datapoints.get(datetime(2014, 1, 2, 3, 4, 5, 6000))
 # Delete datapoint
 datastream.datapoints.delete(start=datetime(2014, 1, 1),
                              end=datetime.now())
+
+# List access_token
+access_tokens = client.access_tokens.filter()
+
+# Create access_token
+access_token = client.access_tokens.create(scopes=[{
+    'permissions': ['read', 'write', 'delete'],
+    'global': False,
+    'ids': ['id0'],
+    'tags': ['tag0']
+}])
+
+# Read access_token
+access_token = client.access_tokens.get('61e13e47ed0b1b6f6a0ebe598d5ddba0c386a\
+                                        0d856487ec84e973d06b1848221')
+print access_token.scopes
+
+# Update access_token
+access_token = client.access_tokens.get('61e13e47ed0b1b6f6a0ebe598d5ddba0c386a\
+                                        0d856487ec84e973d06b1848221')
+access_token.scopes = [{'permissions': ['read', 'write', 'delete'],
+                       'global': True}]
+access_token.save()
+
+# Update access_token directly
+access_token = client.access_tokens.update(
+    '61e13e47ed0b1b6f6a0ebe598d5ddba0c386a0d856487ec84e973d06b1848221',
+    scopes=[{'permissions': ['read', 'write', 'delete'], 'global': True}])
+
+# Delete access_token
+access_token = client.access_tokens.get('61e13e47ed0b1b6f6a0ebe598d5ddba0c386a\
+                                        0d856487ec84e973d06b1848221')
+access_token.delete()
+
+# Delete access_token directly
+client.access_tokens.delete('61e13e47ed0b1b6f6a0ebe598d5ddba0c386a0d856487ec84\
+                            e973d06b1848221')
