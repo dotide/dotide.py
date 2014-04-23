@@ -49,22 +49,23 @@ client.datastreams.delete('id0')
 
 # List datapoints
 datapoints = datastream.datapoints.filter(start=datetime(2014, 1, 1),
-                                          end=datetime.now(),
+                                          end=datetime.utcnow(),
                                           order='asc',
                                           limit=1000)
 
 # Create datapoints
-datapoint = datastream.datapoints.create(t=datetime.now(), v=1)
-datapoints = datastream.datapoints.create([{'t': datetime.now(), 'v': 1},
-                                           {'t': datetime.now(), 'v': 2}]
+datapoint = datastream.datapoints.create(t=datetime.utcnow(), v=1)
+datapoints = datastream.datapoints.create([{'t': datetime.utcnow(), 'v': 1},
+                                           {'t': datetime.utcnow(), 'v': 2}]
                                           )
 
 # Read datapoint with exactly timestamp
 datapoint = datastream.datapoints.get(datetime(2014, 1, 2, 3, 4, 5, 6000))
 
 # Delete datapoint
+datastream.datapoints.delete(datetime(2014, 1, 2, 3, 4, 5, 6000))
 datastream.datapoints.delete(start=datetime(2014, 1, 1),
-                             end=datetime.now())
+                             end=datetime.utcnow())
 
 # List access_token
 access_tokens = client.access_tokens.filter()

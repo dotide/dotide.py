@@ -1,8 +1,12 @@
 import unittest
 import mock
-import dotide
-from dotide.managers import AccessTokenManager, DatastreamManager
 from datetime import datetime
+import dotide
+from dotide.managers import (
+    AccessTokenManager,
+    DatastreamManager,
+    DatapointManager
+)
 
 
 class TestAccessTokenManager(unittest.TestCase):
@@ -197,6 +201,79 @@ class TestDatastreamManager(unittest.TestCase):
         datastream = self.datastream_manager.get(self.datastream['id'])
         self.client.request.return_value = None
         ret = datastream.delete()
+        self.assertTrue(ret)
+
+
+class TestDatapointManager(unittest.TestCase):
+
+    """
+    Test for DatapointManager.
+    """
+
+    def setUp(self):
+        self.client = dotide.Client(client_id='id',
+                                    client_secret='secret',
+                                    database='db')
+        self.client.request = mock.Mock()
+        self.datapoint_manager = DatapointManager(self.client, 'id0')
+        self.datapoint = {
+            't': '2014-01-03T00:01:02.123Z',
+            'v': 100
+        }
+        self.dataset = {
+            'id': 'id0',
+            'datapoints': [self.datapoint],
+            'options': {},
+            'summary': {}
+        }
+
+    def test_init(self):
+        datapoint_manager = DatapointManager(self.client, 'id0')
+        self.assertIsInstance(datapoint_manager, DatapointManager)
+
+    def test_filter(self):
+        self.client.request.return_value = self.dataset
+        dataset = self.datapoint_manager.filter()
+        datapoint = dataset.datapoints[0]
+        self.assertEqual(dataset.id, 'id0')
+        self.assertEqual(datapoint.t, datetime(2014, 1, 3, 0, 1, 2, 123000))
+        self.assertEqual(datapoint.v, self.datapoint['v'])
+
+    def test_create(self):
+        self.client.request.return_value = self.datapoint
+        datapoint = self.datapoint_manager.create(
+            t=datetime(2014, 1, 3, 0, 1, 2, 123000),
+            v=100)
+        self.assertEqual(datapoint.t, datetime(2014, 1, 3, 0, 1, 2, 123000))
+        self.assertEqual(datapoint.v, self.datapoint['v'])
+
+    def test_bulk_create(self):
+        self.client.request.return_value = [self.datapoint]
+        datapoints = self.datapoint_manager.create(
+            [{'t': datetime(2014, 1, 3, 0, 1, 2, 123000),
+              'v': 100}])
+        datapoint = datapoints[0]
+        self.assertEqual(datapoint.t, datetime(2014, 1, 3, 0, 1, 2, 123000))
+        self.assertEqual(datapoint.v, self.datapoint['v'])
+
+    def test_get(self):
+        self.client.request.return_value = self.datapoint
+        datapoint = self.datapoint_manager.get(
+            datetime(2014, 1, 3, 0, 1, 2, 123000))
+        self.assertEqual(datapoint.t, datetime(2014, 1, 3, 0, 1, 2, 123000))
+        self.assertEqual(datapoint.v, self.datapoint['v'])
+
+    def test_delete(self):
+        self.client.request.return_value = None
+        ret = self.datapoint_manager.delete(
+            datetime(2014, 1, 3, 0, 1, 2, 123000))
+        self.assertTrue(ret)
+
+    def test_range_delete(self):
+        self.client.request.return_value = None
+        ret = self.datapoint_manager.delete(
+            start=datetime(2014, 1, 3, 0, 1, 2, 123000),
+            end=datetime.utcnow())
         self.assertTrue(ret)
 
 if __name__ == '__main__':

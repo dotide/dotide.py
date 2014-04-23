@@ -1,6 +1,6 @@
 from datetime import datetime
-from dotide.models import AccessToken, Datastream
 import json
+from dotide.models import AccessToken, Datastream, Datapoint, Dataset
 
 
 class Manager(object):
@@ -39,7 +39,7 @@ class AccessTokenManager(Manager):
     def __init__(self, client):
         self._client = client
 
-    def _build_model(self, json):
+    def _build_access_token(self, json):
         """
         Build AccessToken Model.
         """
@@ -54,10 +54,7 @@ class AccessTokenManager(Manager):
         Filter AccessTokens.
         """
         res = self._client.list_access_tokens()
-        access_tokens = []
-        for access_token in res:
-            access_tokens.append(self._build_model(access_token))
-        return access_tokens
+        return [self._build_access_token(token) for token in res]
 
     def create(self, scopes=None):
         """
@@ -67,14 +64,14 @@ class AccessTokenManager(Manager):
         if scopes:
             data['scopes'] = scopes
         res = self._client.create_access_token(data=json.dumps(data))
-        return self._build_model(res)
+        return self._build_access_token(res)
 
     def get(self, access_token):
         """
         Get an AccessToken.
         """
         res = self._client.read_access_token(access_token)
-        return self._build_model(res)
+        return self._build_access_token(res)
 
     def update(self, access_token, scopes=None):
         """
@@ -85,7 +82,7 @@ class AccessTokenManager(Manager):
             data['scopes'] = scopes
         res = self._client.update_access_token(access_token,
                                                data=json.dumps(data))
-        return self._build_model(res)
+        return self._build_access_token(res)
 
     def delete(self, access_token):
         """
@@ -104,7 +101,7 @@ class DatastreamManager(Manager):
     def __init__(self, client):
         self._client = client
 
-    def _build_model(self, json):
+    def _build_datastream(self, json):
         """
         Build Datastream Model.
         """
@@ -130,10 +127,7 @@ class DatastreamManager(Manager):
             ('offset', offset),
         ) if v is not None}
         res = self._client.list_datastreams(params=self._format_params(params))
-        datastreams = []
-        for datastream in res:
-            datastreams.append(self._build_model(datastream))
-        return datastreams
+        return [self._build_datastream(datastream) for datastream in res]
 
     def create(self, id=None, name=None, type=None, tags=None,
                properties=None):
@@ -148,14 +142,14 @@ class DatastreamManager(Manager):
             ('properties', properties),
         ) if v is not None}
         res = self._client.create_datastream(data=json.dumps(data))
-        return self._build_model(res)
+        return self._build_datastream(res)
 
     def get(self, id):
         """
         Get a Datastream.
         """
         res = self._client.read_datastream(id)
-        return self._build_model(res)
+        return self._build_datastream(res)
 
     def update(self, id, name=None, tags=None, properties=None):
         """
@@ -167,11 +161,95 @@ class DatastreamManager(Manager):
             ('properties', properties),
         ) if v is not None}
         res = self._client.update_datastream(id, data=json.dumps(data))
-        return self._build_model(res)
+        return self._build_datastream(res)
 
     def delete(self, id):
         """
         Delete a datastream.
         """
         ret = self._client.delete_datastream(id)
+        return ret is None
+
+
+class DatapointManager(Manager):
+
+    """
+    Datapoint Manager.
+    """
+
+    def __init__(self, client, id):
+        self._client = client
+        self._id = id
+
+    def _build_datapoint(self, json):
+        return Datapoint(t=self._parse_datetime(json['t']),
+                         v=json['v'])
+
+    def _build_dataset(self, json):
+        return Dataset(id=json['id'],
+                       datapoints=json['datapoints'],
+                       options=json.get('options', {}),
+                       summary=json.get('summary', {}))
+
+    def filter(self, start=None, end=None, order=None, t=None, limit=None,
+               offset=None, summary=None, interval=None, function=None):
+        """
+        Filter Datapoints.
+        """
+        params = {k: v for k, v in (
+            ('start', start),
+            ('end', end),
+            ('order', order),
+            ('t', t),
+            ('limit', limit),
+            ('offset', offset),
+            ('summary', summary),
+            ('interval', interval),
+            ('function', function),
+        ) if v is not None}
+        res = self._client.list_datapoints(self._id,
+                                           params=self._format_params(params))
+        res['datapoints'] = [self._build_datapoint(datapoint)
+                             for datapoint in res['datapoints']]
+        return self._build_dataset(res)
+
+    def create(self, datapoints=None, t=None, v=None):
+        """
+        Create datapoint(s).
+        """
+        if datapoints:
+            data = []
+            for datapoint in datapoints:
+                p = {}
+                if 't' in datapoint:
+                    p['t'] = datapoint['t'].isoformat()
+                p['v'] = datapoint.get('v', None)
+                data.append(p)
+            res = self._client.create_datapoint(self._id, data=data)
+            return [self._build_datapoint(datapoint) for datapoint in res]
+        else:
+            data = {'v': v}
+            if t:
+                data['t'] = t.isoformat()
+            res = self._client.create_datapoint(self._id, data=data)
+            return self._build_datapoint(res)
+
+    def get(self, t):
+        """
+        Get datapoint by timestamp.
+        """
+        res = self._client.read_datapoint(self._id, t.isoformat())
+        return self._build_datapoint(res)
+
+    def delete(self, t=None, start=None, end=None):
+        """
+        Delete datapoints.
+        """
+        ret = False
+        if t:
+            ret = self._client.delete_datapoint(self._id, t.isoformat())
+        elif start and end:
+            ret = self._client.delete_datapoints(self._id,
+                                                 start.isoformat(),
+                                                 end.isoformat())
         return ret is None
