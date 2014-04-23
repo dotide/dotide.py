@@ -57,6 +57,7 @@ class TestClient(unittest.TestCase):
         self.assertIsNone(client.client_secret)
         self.assertIsNone(client.access_token)
         self.assertIsNone(client.database)
+        self.assertIsNotNone(client.access_tokens)
 
     def test_init_with_client_id_secret_db(self):
         client_id = 'id'
@@ -69,6 +70,7 @@ class TestClient(unittest.TestCase):
         self.assertEqual(client.client_secret, 'secret')
         self.assertIsNone(client.access_token)
         self.assertEqual(client.database, 'db')
+        self.assertIsNotNone(client.access_tokens)
 
     def test_list_access_tokens(self):
         self.client.session.request.return_value = mock_response(

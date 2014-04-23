@@ -1,5 +1,6 @@
 import requests
 from requests.auth import HTTPBasicAuth
+from dotide.managers import AccessTokenManager, DatastreamManager
 
 
 class TokenAuth(requests.auth.AuthBase):
@@ -56,6 +57,8 @@ class Client(object):
             'User-Agent': 'dotide.py',
             'TimeZone': 'UTC'
         }
+        self.access_tokens = AccessTokenManager(self)
+        self.datastreams = DatastreamManager(self)
 
     def build_base_url(self):
         """
