@@ -52,24 +52,24 @@ class TestClient(unittest.TestCase):
         }
 
     def test_init_minimal(self):
-        client = dotide.Client()
+        client = dotide.Client('db')
+        self.assertEqual(client.database, 'db')
         self.assertIsNone(client.client_id)
         self.assertIsNone(client.client_secret)
         self.assertIsNone(client.access_token)
-        self.assertIsNone(client.database)
         self.assertIsNotNone(client.access_tokens)
 
     def test_init_with_client_id_secret_db(self):
         client_id = 'id'
         client_secret = 'secret'
         db = 'db'
-        client = dotide.Client(client_id=client_id,
-                               client_secret=client_secret,
-                               database=db)
+        client = dotide.Client(db,
+                               client_id=client_id,
+                               client_secret=client_secret)
+        self.assertEqual(client.database, 'db')
         self.assertEqual(client.client_id, 'id')
         self.assertEqual(client.client_secret, 'secret')
         self.assertIsNone(client.access_token)
-        self.assertEqual(client.database, 'db')
         self.assertIsNotNone(client.access_tokens)
 
     def test_list_access_tokens(self):
