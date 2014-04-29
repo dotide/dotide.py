@@ -108,13 +108,15 @@ class DatastreamManager(Manager):
 
     def _build_datastream(self, json):
         """Build Datastream Model."""
+        t = json['current_t']
+        current_t = self._parse_datetime(t) if t else None
         return Datastream(manager=self,
                           id=json['id'],
                           name=json['name'],
                           type=json['type'],
                           tags=json['tags'],
                           properties=json['properties'],
-                          current_t=self._parse_datetime(json['current_t']),
+                          current_t=current_t,
                           current_v=json['current_v'],
                           created_at=self._parse_datetime(json['created_at']),
                           updated_at=self._parse_datetime(json['updated_at']))
@@ -285,13 +287,15 @@ class DatapointManager(Manager):
                     p['t'] = datapoint['t'].isoformat()
                 p['v'] = datapoint.get('v', None)
                 data.append(p)
-            res = self._client.create_datapoint(self._id, data=data)
+            res = self._client.create_datapoint(self._id,
+                                                data=json.dumps(data))
             return [self._build_datapoint(datapoint) for datapoint in res]
         else:
             data = {'v': v}
             if t:
                 data['t'] = t.isoformat()
-            res = self._client.create_datapoint(self._id, data=data)
+            res = self._client.create_datapoint(self._id,
+                                                data=json.dumps(data))
             return self._build_datapoint(res)
 
     def get(self, t):

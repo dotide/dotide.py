@@ -23,12 +23,11 @@ datastream = client.datastreams.create(id='id0',
                                        name='name0',
                                        type='number',
                                        tags=['tag0'],
-                                       proerties={'prop0': 1}
+                                       properties={'prop0': 1}
                                        )
 
 # Read datastream
 datastream = client.datastreams.get('id0')
-print datastream.type
 
 # Update datstream
 datastream.tags.append('tag1')
@@ -38,7 +37,7 @@ datastream.save()
 datastream = client.datastreams.update('id0',
                                        name='name0',
                                        tags=['tag0'],
-                                       proerties={'prop0': 1}
+                                       properties={'prop0': 1}
                                        )
 
 # Delete datastream
@@ -81,7 +80,6 @@ access_token = client.access_tokens.create(scopes=[{
 # Read access_token
 access_token = client.access_tokens.get('61e13e47ed0b1b6f6a0ebe598d5ddba0c386a\
                                         0d856487ec84e973d06b1848221')
-print access_token.scopes
 
 # Update access_token
 access_token = client.access_tokens.get('61e13e47ed0b1b6f6a0ebe598d5ddba0c386a\
