@@ -98,7 +98,7 @@ class Client(object):
                                  headers=self.headers,
                                  auth=self._build_auth())
 
-        data = None if r.status_code == 204 else r.json()
+        data = r.json() if r.content else None
         if r.status_code >= 400:
             raise requests.exceptions.HTTPError(data['message'], response=r)
         return data

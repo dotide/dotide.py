@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Dotide.py: Dotide Python SDK
-============================
+Dotide.py: Official Dotide Python SDK
+=====================================
 
 API Reference
 -------------

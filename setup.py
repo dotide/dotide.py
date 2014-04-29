@@ -2,9 +2,13 @@
 
 from distutils.core import setup
 
+
 setup(
     name='dotide',
     version='1.0.0',
-    description='Dotide Python SDK',
+    description='Official Dotide Python SDK',
+    license='MIT',
     packages=['dotide'],
+    install_requires=['requests'],
+    tests_require=['mock'],
 )
