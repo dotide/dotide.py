@@ -7,7 +7,7 @@ CLIENT_ID = ''
 CLIENT_SECRET = ''
 DB = ''
 
-client = dotide.Client(DB,
+client = dotide.Dotide(DB,
                        client_id=CLIENT_ID,
                        client_secret=CLIENT_SECRET)
 
@@ -19,7 +19,7 @@ client.datastreams.create({'id': 'id0',
                            })
 
 # List datastreams
-client.datastreams.list({'ids': ['id0', 'id1'],
+client.datastreams.filter({'ids': ['id0', 'id1'],
                          'tags': ['tag0', 'tag1'],
                          'limit': 10,
                          'offset': 0
@@ -39,12 +39,12 @@ client.datastreams.update('id0', {
 client.datastreams.delete('id0')
 
 # Create datapoints
-client.datapoints.create(datastream_id='id0',
+client.datapoints.create(id='id0',
                          data=[[datetime.utcnow(), 1],
                                [datetime.utcnow(), 2]])
 
 # List datapoints
-client.datapoints.filter(datastream_id='id0',
+client.datapoints.filter(id='id0',
                          params={'start': datetime(2014, 1, 1),
                                  'end': datetime.utcnow(),
                                  'order': 'asc',
@@ -52,11 +52,11 @@ client.datapoints.filter(datastream_id='id0',
                                  'offset': 0})
 
 # Read datapoint with exactly timestamp
-client.datapoints.get(datastream_id='id0',
+client.datapoints.get(id='id0',
                       timestamp=datetime(2014, 1, 2, 3, 4, 5, 6000))
 
 # Delete datapoint
-client.datapoints.delete(datatream_id='id0',
+client.datapoints.delete(id='id0',
                          params={'start': datetime(2014, 1, 1),
                                  'end': datetime.utcnow()})
 
