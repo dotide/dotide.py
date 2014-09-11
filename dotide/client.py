@@ -1,6 +1,5 @@
 import requests
 from requests.auth import HTTPBasicAuth
-from dotide.managers import AccessTokenManager, DatastreamManager
 
 
 class TokenAuth(requests.auth.AuthBase):
@@ -39,7 +38,7 @@ class Client(object):
                  client_secret=None,
                  access_token=None,
                  host='api.dotide.com',
-                 version='v1',
+                 version='v2',
                  secure=True):
         self.database = database  # : Database's name.
         self.client_id = client_id  # : Database's client_id.
@@ -52,10 +51,8 @@ class Client(object):
         self.headers = {
             'Content-Type': 'application/json',
             'User-Agent': 'dotide.py',
-            'TimeZone': 'UTC'
+            'Time-Zone': 'UTC'
         }
-        self.access_tokens = AccessTokenManager(self)
-        self.datastreams = DatastreamManager(self)
 
     def _build_base_url(self):
         """Build base url."""
@@ -65,9 +62,9 @@ class Client(object):
                                                      ver=self.version,
                                                      db=self.database)
 
-    def _build_full_url(self, target):
+    def _build_full_url(self, path):
         """Build full url."""
-        return self._build_base_url() + target
+        return self._build_base_url() + path
 
     def _build_auth(self):
         """Build auth."""
@@ -79,20 +76,20 @@ class Client(object):
             auth = None
         return auth
 
-    def request(self, method, target, params=None, data=None):
+    def request(self, method, path, params=None, data=None):
         """An internal method that send request to server.
         It is exposed if you need to make API calls not implemented in this
         library or if you need to debug requests.
 
         :param str method: An HTTP method (e.g. 'GET' or 'POST').
-        :param str target: The target URL with leading slash (e.g. '/datastreams').
+        :param str path: The path URL with leading slash (e.g. '/datastreams').
         :param dict params: A dictionary of parameters to add to the request.
         :param str data: A json string. This is the body of the request.
         :returns: Parsed body.
         :rtype: dict or list.
         """
         r = self.session.request(method,
-                                 self._build_full_url(target),
+                                 self._build_full_url(path),
                                  params=params,
                                  data=data,
                                  headers=self.headers,
@@ -103,81 +100,18 @@ class Client(object):
             raise requests.exceptions.HTTPError(data['message'], response=r)
         return data
 
-    def list_access_tokens(self, params=None):
-        """List access_tokens."""
-        return self.request('GET', '/access_tokens', params=params)
+    def get(self, path, params=None):
+        """GET request."""
+        return self.request('GET', path, params=params)
 
-    def create_access_token(self, data=None):
-        """Create an access_token."""
-        return self.request('POST', '/access_tokens', data=data)
+    def post(self, path, data=None):
+        """POST request."""
+        return self.request('POST', path, data=data)
 
-    def read_access_token(self, access_token):
-        """Read an access_token."""
-        return self.request('GET',
-                            '/access_tokens/{access_token}'.format(
-                                access_token=access_token))
+    def put(self, path, data=None):
+        """PUT request."""
+        return self.request('PUT', path, data=data)
 
-    def update_access_token(self, access_token, data=None):
-        """Update an access_token."""
-        return self.request('PUT',
-                            '/access_tokens/{access_token}'.format(
-                                access_token=access_token),
-                            data=data)
-
-    def delete_access_token(self, access_token):
-        """Delete an access_token."""
-        return self.request('DELETE',
-                            '/access_tokens/{access_token}'.format(
-                                access_token=access_token))
-
-    def list_datastreams(self, params=None):
-        """List datastreams."""
-        return self.request('GET', '/datastreams', params=params)
-
-    def create_datastream(self, data=None):
-        """Create an datastream."""
-        return self.request('POST', '/datastreams', data=data)
-
-    def read_datastream(self, id):
-        """Read an datastream."""
-        return self.request('GET', '/datastreams/{id}'.format(id=id))
-
-    def update_datastream(self, id, data=None):
-        """Update an datastream."""
-        return self.request('PUT',
-                            '/datastreams/{id}'.format(id=id),
-                            data=data)
-
-    def delete_datastream(self, id):
-        """Delete an datastream."""
-        return self.request('DELETE', '/datastreams/{id}'.format(id=id))
-
-    def list_datapoints(self, id, params=None):
-        """List datapoints."""
-        return self.request('GET',
-                            '/datastreams/{id}/datapoints'.format(id=id),
-                            params=params)
-
-    def create_datapoint(self, id, data=None):
-        """Create datapoint(s)."""
-        return self.request('POST',
-                            '/datastreams/{id}/datapoints'.format(id=id),
-                            data=data)
-
-    def read_datapoint(self, id, t):
-        """Read a datapoint by timestamp."""
-        return self.request('GET',
-                            '/datastreams/{id}/datapoints/{t}'.format(id=id,
-                                                                      t=t))
-
-    def delete_datapoints(self, id, start, end):
-        """Delete a range of datapoints."""
-        return self.request('DELETE',
-                            '/datastreams/{id}/datapoints'.format(id=id),
-                            params={'start': start, 'end': end})
-
-    def delete_datapoint(self, id, t):
-        """Delete datapoint by timestamp."""
-        return self.request('DELETE',
-                            '/datastreams/{id}/datapoints/{t}'.format(id=id,
-                                                                      t=t))
+    def delete(self, path, params=None):
+        """DELETE request."""
+        return self.request('DELETE', path, params=params) is None

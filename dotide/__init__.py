@@ -1,1 +1,1 @@
-from dotide.client import Client
+from .dotide import Dotide

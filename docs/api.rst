@@ -9,18 +9,26 @@ client
     :undoc-members:
     :show-inheritance:
 
-managers
+datastreams
 ----------------------
 
-.. automodule:: dotide.managers
+.. automodule:: dotided.datastreams
     :members:
     :undoc-members:
     :show-inheritance:
 
-models
+datapoints
 --------------------
 
-.. automodule:: dotide.models
+.. automodule:: dotide.datapoints
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+access_tokens
+--------------------
+
+.. automodule:: dotide.access_tokens
     :members:
     :undoc-members:
     :show-inheritance:
